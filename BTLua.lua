@@ -1,12 +1,24 @@
--- BEHAVIOUR TREES FOR LUA
--- code originally from http://www.blizzhackers.cc/viewtopic.php?f=236&t=490980
--- updated by Leo
-
+--- BTLua
 if not BTLua then
   BTLua={}
 end
-
-function BTLua.inheritsFrom( baseClass )
+BTLua.behavtree = {}
+function BTLua.behavtree:new(...)
+   local _o = {}
+   _o.name=""
+   _o.tree=nil
+   _o.object=nil
+   _o.laststatus=nil
+   _o.Runningnode=nil
+   _o.initialized=false
+   _o.ticknum=0
+   setmetatable(_o, self)
+   self.__index = self
+   _o:init(...)
+   return _o
+end
+--------------- UTILS -------------------
+local function inheritsFrom( baseClass )
     local new_class = {}
     local class_mt = { __index = new_class }
 
@@ -21,20 +33,11 @@ function BTLua.inheritsFrom( baseClass )
     end
     return new_class
 end
-
-local cocreate = coroutine.create
-local cocoyield = coroutine.yield
-local coresume = coroutine.resume
-local codead = function(co) return co == nil or coroutine.status(co) == "dead" end
-
--- Sleep 
-function BTLua.Sleep(timeout)
-    return BTLua.WaitContinue:new(function() return false end, nil, timeout)
-end
+--
 local function shuffle(t)
   -- see: http://en.wikipedia.org/wiki/Fisher-Yates_shuffle
   local n = #t
- 
+
   while n >= 2 do
     -- n is now the last pertinent index
     local k = math.random(n) -- 1 <= k <= n
@@ -42,297 +45,420 @@ local function shuffle(t)
     t[n], t[k] = t[k], t[n]
     n = n - 1
   end
- 
+
   return t
 end
-
---- BASE NODE
-BTLua.Node = {}
-function BTLua.Node:Tick(pTreeWalker) 
-   if codead(self.runner) then
-      self.runner = cocreate(self.Execute)
-   end
-   
-   local status, rv = coresume(self.runner, self, pTreeWalker);
-   
-   if codead(self.runner) then 
-      self.last_status = rv
-   else
-      self.last_status = "Running"
-   end
-   
-   return self.last_status
+local cocreate = coroutine.create
+local coyield = coroutine.yield
+local coresume = coroutine.resume
+local codead = function(co) return co == nil or coroutine.status(co) == "dead" end
+--------------- NODE --------------------
+btnode = {}
+function btnode:new(...)
+   local _o = {}
+   _o.status=""
+   _o.ticknum = -1
+   setmetatable(_o, self)
+   self.__index = self
+   _o:init(...)
+   return _o
 end
-
-function BTLua.Node:Start()
-   self.runner = nil
-   self.last_status = nil
+--------------- SEQUENCE ----------------
+btsequence = inheritsFrom(btnode)
+function btsequence:init(...)
+  self.childs = {}
+  for i,v in ipairs(arg) do
+    table.insert(self.childs,v)
+  end
 end
-
-BTLua.Action = BTLua.inheritsFrom(BTLua.Node)
-function BTLua.Action:new(func,...) 
-   local _func = func
-   if type(_func)=="string" then
-    _func=loadstring(_func)
-   end
-   local o = { action = _func, runner = nil, type = "Action", parent = nil,args=arg}
-   setmetatable(o, self)
-    self.__index = self
-    return o
-end
-
-function BTLua.Action:Execute(pTreeWalker)
-   if self.args then
-     return self.action(pTreeWalker.object,pTreeWalker, unpack(self.args))
-   else
-     return self.action(pTreeWalker.object,pTreeWalker)
-   end 
-end
-
-BTLua.Condition = BTLua.inheritsFrom(BTLua.Node)
-function BTLua.Condition:new(func,...) 
-   local _func = func
-   if type(_func)=="string" then
-    _func=loadstring(_func)
-   end
-   local o = { action = _func, runner = nil, type = "Action", parent = nil,args=arg}
-   setmetatable(o, self)
-    self.__index = self
-    return o
-end
-
-function BTLua.Condition:Execute(pTreeWalker)
-   if self.args then
-     return self.action(pTreeWalker.object,pTreeWalker, unpack(self.args))
-   else
-     return self.action(pTreeWalker.object,pTreeWalker)
-   end 
-end
-
---- BASE CONTAINER
-BTLua.Container = BTLua.inheritsFrom(BTLua.Node)
-function BTLua.Container:new(...)
-    local o = { children = {}, runner = nil, type = "Container", parent = nil }
-    setmetatable(o, self)
-    self.__index = self
-    
-    for i,v in ipairs(arg) do
-        o:Add(v)
-    end
-    
-    return o
-end
-
-function BTLua.Container:Add(comp)
-   if (type(comp) == "function") then
-      comp = BTLua.Action:new(comp)
-   end
-
-    table.insert(self.children, comp)
-    comp.parent = self
-    return self
-end
-
-BTLua.Sequence = BTLua.inheritsFrom(BTLua.Container)
-function BTLua.Sequence:Execute(pTreeWalker) 
-   for i,comp in ipairs(self.children) do
-      comp:Start()
-      while comp:Tick(pTreeWalker) == "Running" do
-         coyield("Running")
-      end
-      
-      if (comp.last_status == false) then
-         return false
-      end
-   end
-   
-   return true
-end
-
-BTLua.PrioritySelector = BTLua.inheritsFrom(BTLua.Container)
-function BTLua.PrioritySelector:Execute(pTreeWalker) 
-   for i,comp in ipairs(self.children) do
-      comp:Start()
-      while comp:Tick(pTreeWalker) == "Running" do
-         coyield("Running")
-      end
-      
-      if (comp.last_status == true) then
-         return true
-      end
-   end
-   
-   return false
-end
-
-BTLua.RandomSelector = BTLua.inheritsFrom(BTLua.Container)
-function BTLua.RandomSelector:Execute(pTreeWalker) 
-   self.children = shuffle(self.children)
-   for i,comp in ipairs(self.children) do
-      comp:Start()
-      while comp:Tick(pTreeWalker) == "Running" do
-         coyield("Running")
-      end
-      
-      if (comp.last_status == true) then
-         return true
-      end
-   end
-   
-   return false
-end
-
-BTLua.AbstractDecorator = BTLua.inheritsFrom(BTLua.Node)
-function BTLua.AbstractDecorator:new(predicate, child)
-   if (type(child) == "function") then
-      child = BTLua.Action:new(child)
-   end
-    local _predicate = predicate
-    if type(_predicate)=="string" then
-       _predicate=loadstring(_predicate)
-    end
-    local o = { predicate = _predicate, child = child }
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
-
--- Decorator isa AstractDecorator
-BTLua.Decorator = BTLua.inheritsFrom(BTLua.AbstractDecorator)
-function BTLua.Decorator:Execute(pTreeWalker)
-    local pred_rv = self.predicate()
-    self.child:Start()
-    if pred_rv then
-        while self.child:Tick(pTreeWalker) == "Running" do
-           coyield("Running")
-        end
-        
-        return self.child.last_status
+function btsequence:run(pbehavtree)
+  --debugprint("btsequence:run")
+  local _s
+  for i=1,#self.childs do
+    --debugprint("btsequence:run "..i)
+    if self.status == "Running" and self.ticknum == pbehavtree.ticknum-1 and self.childs[i].status~="Running" and self.childs[1].ticknum== pbehavtree.ticknum-1 then
+      _s = self.childs[i].status
     else
-        return false
+      _s = self.childs[i]:run(pbehavtree)
     end
-end
-
--- DecoratorContinue isa AstractDecorator
-BTLua.DecoratorContinue = BTLua.inheritsFrom(BTLua.AbstractDecorator)
-function BTLua.DecoratorContinue:Execute(pTreeWalker)
-    local pred_rv = self.predicate()
-    if pred_rv then
-       self.child:Start()
-        while self.child:Tick(pTreeWalker) == "Running" do
-           coyield("Running")
-        end
-        return self.child.last_status
-    else
-        return true
+    if _s==false or _s=="Running" then
+      --debugprint("btsequence ends2")
+      --debugprint(_s)
+      self.ticknum,self.status = pbehavtree.ticknum, _s
+      return _s
     end
+  end
+  --debugprint("btsequence ends")
+  --debugprint(_s)
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
 end
-
--- Filter isa AstractDecorator
-BTLua.Filter = BTLua.inheritsFrom(BTLua.AbstractDecorator)
-function BTLua.DecoratorContinue:Execute(pTreeWalker)
-    local pred_rv = self.predicate()
-    self.child:Start()
-    if pred_rv then
-        while self.child:Tick(pTreeWalker) == "Running" do
-           coyield("Running")
-        end
-        
-        return self.child.last_status
-    else
-        return false
+--------------- SELECTOR ----------------
+btselector = inheritsFrom(btnode)
+function btselector:init(...)
+  self.childs = {}
+  for i,v in ipairs(arg) do
+    table.insert(self.childs,v)
+  end
+end
+function btselector:run(pbehavtree)
+  --debugprint("btselector:run")
+  local _s
+  for i=1,#self.childs do
+     --debugprint("btselector "..i)
+     if self.status == "Running" and self.ticknum == pbehavtree.ticknum-1 and self.childs[i].status~="Running" and self.childs[1].ticknum== pbehavtree.ticknum-1 then
+       _s = self.childs[i].status
+     else
+       _s = self.childs[i]:run(pbehavtree)
+     end
+     if _s==true or _s=="Running" then
+        --debugprint("btselector ends2")
+        --debugprint(_s)
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+     end
+  end
+  --debugprint("btselector ends")
+  --debugprint(_s)
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
+end
+--------------- RANDOMSELECTOR ----------------
+btrandomselector = inheritsFrom(btnode)
+function btrandomselector:init(...)
+  self.childs = {}
+  for i,v in ipairs(arg) do
+    table.insert(self.childs,v)
+  end
+end
+function btrandomselector:run(pbehavtree)
+  --debugprint("btrandomselector:run")
+  local _s
+  if self.status ~= "Running" or self.ticknum ~= pbehavtree.ticknum-1 then
+    shuffle(self.childs)
+  end
+  for i=1,#self.childs do
+     if self.status == "Running" and self.ticknum == pbehavtree.ticknum-1 and self.childs[i].status~="Running" and self.childs[1].ticknum== pbehavtree.ticknum-1 then
+       _s = self.childs[i].status
+     else
+       _s = self.childs[i]:run(pbehavtree)
+     end
+     if _s==true or _s=="Running" then
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+     end
+  end
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
+end
+--------------- FILTER ----------------
+btfilter = inheritsFrom(btnode)
+function btfilter:init(pcondition,pchild)
+  self.childs = {pchild}
+  if type(self.condition) == "string" then
+    self.condition = loadstring(pcondition)
+  else
+    self.condition = pcondition
+  end
+end
+function btfilter:run(pbehavtree)
+  --debugprint("btfilter:run "..type(self.condition))
+  local _s
+  if self.status ~= "Running" or self.ticknum ~= pbehavtree.ticknum-1 then
+    if type(self.condition) == "function" then
+      _s = self.condition(pbehavtree.object,pbehavtree)
+      if _s == false then
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+      end
     end
+  end
+  for i=1,#self.childs do
+     if self.status == "Running" and self.ticknum == pbehavtree.ticknum-1 and self.childs[i].status~="Running" and self.childs[1].ticknum== pbehavtree.ticknum-1 then
+       _s = self.childs[i].status
+     else
+       _s = self.childs[i]:run(pbehavtree)
+     end
+     if _s==true or _s=="Running" then
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+     end
+  end
+  --debugprint("btfilter:run result ")
+  --debugprint(_s)
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
 end
-
--- Wait isa AbstractDecorator
-BTLua.Wait = BTLua.inheritsFrom(BTLua.AbstractDecorator)
-function BTLua.Wait:new(predicate, child, timeout)
-    local o = AbstractDecorator.new(self, predicate, child)
-    o.timeout = timeout
-    return o
+--------------- DECORATOR ----------------
+btdecorator = inheritsFrom(btnode)
+function btdecorator:init(pcondition,pchild)
+  self.childs = {pchild}
+  if type(self.condition) == "string" then
+    self.condition = loadstring(pcondition)
+  else
+    self.condition = pcondition
+  end
 end
-
-function BTLua.Wait:Execute(pTreeWalker)
-    local time_start = GetUptimeMS()
-    
-    while (GetUptimeMS() - time_start < self.timeout) do
-        local pred_rv = self.predicate()
-        if pred_rv then
-           self.child:Start()
-            while self.child:Tick(pTreeWalker) == "Running" do
-              coyield("Running")
-           end   
-           return self.child.last_status
-        end
-        coyield("Running")
+function btdecorator:run(pbehavtree)
+  --debugprint("btdecorator:run "..type(self.condition))
+  local _s
+  if self.status ~= "Running" or self.ticknum ~= pbehavtree.ticknum-1 then
+    if type(self.condition) == "function" then
+      _s = self.condition(pbehavtree.object,pbehavtree)
+      if _s == false then
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+      end
     end
-    return false
+  end
+  for i=1,#self.childs do
+     if self.status == "Running" and self.ticknum == pbehavtree.ticknum-1 and self.childs[i].status~="Running" and self.childs[1].ticknum== pbehavtree.ticknum-1 then
+       _s = self.childs[i].status
+     else
+       _s = self.childs[i]:run(pbehavtree)
+     end
+     if _s==true or _s=="Running" then
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+     end
+  end
+  --debugprint("btdecorator:run result ")
+  --debugprint(_s)
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
 end
-
--- WaitContinue isa AbstractDecorator
-BTLua.WaitContinue = BTLua.inheritsFrom(AbstractDecorator)
-function BTLua.WaitContinue:new(predicate, child, timeout)
-    local o = AbstractDecorator.new(self, predicate, child)
-    o.timeout = timeout
-    return o
+--------------- DECORATORCONTINUE ----------------
+btdecoratorcontinue = inheritsFrom(btnode)
+function btdecoratorcontinue:init(pcondition,pchild)
+  self.childs = {pchild}
+  if type(self.condition) == "string" then
+    self.condition = loadstring(pcondition)
+  else
+    self.condition = pcondition
+  end
 end
-
-function BTLua.WaitContinue:Execute(pTreeWalker)
-    local time_start = GetUptimeMS()
-    
-    while (GetUptimeMS() - time_start < self.timeout) do
-        local pred_rv = self.predicate()
-        if pred_rv then
-           self.child:Start()
-            while self.child:Tick(pTreeWalker) == "Running" do
-              coyield("Running")
-           end   
-           return self.child.last_status
-        end
-        coyield("Running")
+function btdecoratorcontinue:run(pbehavtree)
+  --debugprint("btdecoratorcontinue:run "..type(self.condition))
+  local _s
+  if self.status ~= "Running" or self.ticknum ~= pbehavtree.ticknum-1 then
+    if type(self.condition) == "function" then
+      _s = self.condition(pbehavtree.object,pbehavtree)
+      if _s == false then
+        _s = true
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+      end
     end
-    return true
+  end
+  for i=1,#self.childs do
+     if self.status == "Running" and self.ticknum == pbehavtree.ticknum-1 and self.childs[i].status~="Running" and self.childs[1].ticknum== pbehavtree.ticknum-1 then
+       _s = self.childs[i].status
+     else
+       _s = self.childs[i]:run(pbehavtree)
+     end
+     if _s==true or _s=="Running" then
+        self.ticknum,self.status = pbehavtree.ticknum, _s
+        return _s
+     end
+  end
+  --debugprint("btdecoratorcontinue:run result ")
+  --debugprint(_s)
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
 end
-
--- RepeatUntil isa AbstractDecorator
-BTLua.RepeatUntil = BTLua.inheritsFrom(AbstractDecorator)
-function BTLua.RepeatUntil:new(predicate, child, timeout)
-    local o = AbstractDecorator.new(self, predicate, child)
-    o.timeout = timeout
-    return o
+--------------- WAIT ----------------
+btwait = inheritsFrom(btnode)
+function btwait:init(pcondition,ptimeout,pchild)
+  self.childs = {pchild}
+  self.timeout = ptimeout
+  if type(self.condition) == "string" then
+    self.condition = loadstring(pcondition)
+  else
+    self.condition = pcondition
+  end
 end
-
-function BTLua.RepeatUntil:Execute(pTreeWalker)
-    local time_start = GetUptimeMS()
-    
-    while (GetUptimeMS() - time_start < self.timeout) do
-        local pred_rv = self.predicate()
-        if not pred_rv then
-           self.child:Start()
-            while self.child:Tick(pTreeWalker) == "Running" do
-              coyield("Running")
-           end   
-           if self.child.last_status == false then return false end
-            coyield("Running") 
-        else
-            return true
-        end
+function btwait:run(pbehavtree)
+--TODO da fare
+end
+--------------- WAITCONTINUE ----------------
+btwaitcontinue = inheritsFrom(btnode)
+function btwaitcontinue:init(pcondition,ptimeout,pchild)
+  self.childs = {pchild}
+  self.timeout = ptimeout
+  if type(self.condition) == "string" then
+    self.condition = loadstring(pcondition)
+  else
+    self.condition = pcondition
+  end
+end
+function btwaitcontinue:run(pbehavtree)
+--TODO da fare
+end
+--------------- REPEATUNTIL ----------------
+btrepeatuntil = inheritsFrom(btnode)
+function btrepeatuntil:init(pcondition,ptimeout,pchild)
+  self.childs = {pchild}
+  self.timeout = ptimeout
+  if type(self.condition) == "string" then
+    self.condition = loadstring(pcondition)
+  else
+    self.condition = pcondition
+  end
+end
+function btrepeatuntil:run(pbehavtree)
+--TODO da fare
+end
+--------------- SLEEP --------------------
+function btSleep(timeout)
+    return btwaitcontinue:new(function() return false end, nil, timeout)
+end
+--------------- CONDITION ----------------
+btcondition = inheritsFrom(btnode)
+function btcondition:init(pcondition)
+  if type(self.condition) == "string" then
+    self.condition = loadstring(pcondition)
+  else
+    self.condition = pcondition
+  end
+end
+function btcondition:run(pbehavtree)
+  --debugprint("btcondition:run "..type(self.condition))
+  local _s
+  if type(self.condition) == "function" then
+    _s = self.condition(pbehavtree.object,pbehavtree)
+  end
+  --debugprint("btcondition:run result ")
+  --debugprint(_s)
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
+end
+--------------- ACTION ----------------
+btaction = inheritsFrom(btnode)
+function btaction:init(paction)
+  if type(self.action) == "string" then
+    self.action = loadstring(paction)
+  else
+    self.action = paction
+  end
+  self.runner = nil
+end
+function btaction:run(pbehavtree)
+  --debugprint("btaction:run")
+  local _s
+  if type(self.action) == "function" then
+    _s = self.action(pbehavtree.object,pbehavtree)
+  end
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  if _s == "Running" then
+  end
+  return _s
+end
+--------------- ACTIONRESUME ----------------
+btactionresume = inheritsFrom(btnode)
+function btactionresume:init(paction)
+  if type(self.action) == "string" then
+    self.action = loadstring(paction)
+  else
+    self.action = paction
+  end
+  self.runner = nil
+end
+function btactionresume:run(pbehavtree)
+  --debugprint("btactionresume:run")
+  local _status, _s
+  if type(self.action) == "function" then
+    if self.status ~= "Running" or self.ticknum ~= pbehavtree.ticknum-1 then
+      self.runner = cocreate(self.action)
     end
-    return false
+    if codead(self.runner) then
+      self.runner = cocreate(self.action)
+    end
+    _status,_s = coresume(self.runner, pbehavtree.object,pbehavtree)
+  end
+  self.ticknum,self.status = pbehavtree.ticknum, _s
+  return _s
+end
+--------------- RETURNTRUE ---------------
+function btReturnTrue()
+  return true
+end
+--------------- RETURNFALSE ---------------
+function btReturnFalse()
+  return false
+end
+--------------- BEHAVTREE ----------------
+function BTLua.behavtree:init(pname,pobject,ptree,pfunctionstart,pfunctionend)
+  --debugprint("BTLua.behavtree:init")
+  self.name=pname
+  self.object=pobject
+  self.tree={ptree}
+  self.functionstart = pfunctionstart
+  self.functionend = pfunctionend
+  self.initialized=false
+  self:initialize()
 end
 
-BTLua.TreeWalker = {}
-function BTLua.TreeWalker:new(pname,pobject,logictree)
-   local o = {name=pname, object=pobject, logic = logictree }
-   setmetatable(o, self)
-    self.__index = self
-    return o
-end
-function BTLua.TreeWalker:Tick()
+function BTLua.behavtree:run()
 
-   self.logic:Tick(self)
-   
-   if (self.logic.last_status ~= "Running") then
-      self.logic:Start()
-   end
+  --debugprint("BTLua.behavtree:run "..self.name)
+
+  if (self.initialized==false) then
+    self:initialize()
+  end
+
+  if self.functionstart then
+    self.functionstart(self.object,self)
+  end
+
+  self.ticknum = self.ticknum + 1
+  if self.ticknum > 10000 then
+    for i=1,#self.tree do
+      self:resetTicknumChilds(self.tree[i])
+    end
+  end
+  self.laststatus = nil
+  local _s
+  for i=1,#self.tree do
+    --debugprint(i.."/"..#self.tree)
+     _s = self.tree[i]:run(self)
+  end
+  self.laststatus = _s
+
+  if self.functionend then
+    self.functionend(self.object,self)
+  end
+
+  --debugprint(_s)
+
+  return self.laststatus
 end
+
+function BTLua.behavtree:initialize()
+  for i=1,#self.tree do
+    self:setParentChilds(self.tree[i],nil)
+  end
+end
+
+function BTLua.behavtree:setParentChilds(pnode,pparent)
+  if pnode then
+    pnode.parent =pparent
+    if pnode.childs then
+      for i=1,#pnode.childs do
+        self:setParentChilds(pnode.childs[i],pnode)
+      end
+    end
+  end
+end
+
+function BTLua.behavtree:resetTicknumChilds(pbehavtree,pnode)
+  if pnode then
+    pnode.ticknum =pnode.ticknum-pbehavtree.ticknum
+    if pnode.childs then
+      for i=1,#pnode.childs do
+        self:resetTicknumChilds(pbehavtree,pnode.childs[i])
+      end
+    end
+  end
+end
+
+--debugprint=print
