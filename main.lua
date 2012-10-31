@@ -1,4 +1,4 @@
-times=10
+times=1
 cycles=50000
 
 function resetEnv()
@@ -44,6 +44,7 @@ function love.load()
  require "BTLua2"
  inspect = require 'inspect'
  resetEnv()
+ print(_VERSION)
 end
 
 function love.keypressed(key)
@@ -83,7 +84,7 @@ function love.keypressed(key)
      ---
      local took = os.clock() - now
      local kbfin = collectgarbage ("count")-kbini
-     print(test .. " took: "..round(took,5).." sec and "..round(kbfin,1).." Kb")
+     print(test .. " n." .. time.."/"..times.. " took: "..round(took,5).." sec and "..round(kbfin,1).." Kb")
      printEnv()
      if min == -1 or took<min then
       min = took
@@ -199,8 +200,8 @@ function func_b()
   else
     if _G.env.b % 2 == -1 then
       _G.env.b_running = _G.env.b_running + 1
-      return "Running"
-      --coroutine.yield("Running")
+      --return "Running"
+      coroutine.yield("Running")
     end
     _G.env.b_true = _G.env.b_true + 1
     return true

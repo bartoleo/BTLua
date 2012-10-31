@@ -111,23 +111,31 @@
 			"file": "main.lua",
 			"settings":
 			{
-				"buffer_size": 2334,
+				"buffer_size": 6635,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/C/leo/love/sublimetext/Data/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+			"file": "BTLua.lua",
 			"settings":
 			{
-				"buffer_size": 7970,
+				"buffer_size": 13161,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.lua",
+			"settings":
+			{
+				"buffer_size": 2640,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "/C/leo/love/sublimetext/Data/Packages/User/SublimeLinter.sublime-settings",
+			"file": "BTLua2.lua",
 			"settings":
 			{
-				"buffer_size": 315,
+				"buffer_size": 8549,
 				"line_ending": "Windows"
 			}
 		}
@@ -135,9 +143,37 @@
 	"build_system": "Packages/SublimeLeoLove/Love_debug.sublime-build",
 	"command_palette":
 	{
-		"height": 185.0,
+		"height": 375.0,
 		"selected_items":
 		[
+			[
+				"inde",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"trail",
+				"Trailing Spaces: Delete Trailing Spaces"
+			],
+			[
+				"trial",
+				"Package Control: Install Package"
+			],
+			[
+				"tra",
+				"Trailing Spaces: Delete Trailing Spaces"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"error",
+				"SublimeLinter: Show Error List"
+			],
+			[
+				"linte",
+				"SublimeLinter: Show Error List"
+			],
 			[
 				"linter",
 				"SublimeLinter: Extract Annotations"
@@ -153,10 +189,6 @@
 			[
 				"lint",
 				"SublimeLinter: Extract Annotations"
-			],
-			[
-				"Package Control: ",
-				"Package Control: List Packages"
 			],
 			[
 				"hex",
@@ -199,7 +231,7 @@
 	},
 	"console":
 	{
-		"height": 501.0
+		"height": 94.0
 	},
 	"distraction_free":
 	{
@@ -212,9 +244,17 @@
 	},
 	"file_history":
 	[
+		"/C/leo/love/BTLua/behavtree.lua",
+		"/C/leo/love/platform/lib/BTLua.lua",
+		"/C/leo/love/BTLua/BTLua.lua",
+		"/C/leo/love/BTLua/BTLua2.lua",
+		"/C/leo/love/sublimetext/Data/Packages/User/SublimeLinter.sublime-settings",
+		"/C/leo/love/sublimetext/Data/Packages/User/Preferences.sublime-settings",
+		"/C/leo/love/bones/main.lua",
+		"/C/leo/love/platform/states/menu.lua",
+		"/C/leo/love/sublimetext/Data/Packages/SublimeLinter/SublimeLinter.sublime-settings",
 		"/C/leo/love/sublimetext/Data/Packages/SublimeLinter/changelog.txt",
 		"/C/leo/love/sublimetext/Data/Packages/SublimeLinter/README.md",
-		"/C/leo/love/platform/states/menu.lua",
 		"/C/leo/love/lovewars/classes/map.lua",
 		"/C/leo/love/lovewars/lib/mrpas.lua",
 		"/C/leo/love/lovewars/states/game.lua",
@@ -307,7 +347,6 @@
 		"/C/leo/love/platform/conf.lua",
 		"/C/leo/love/sublimetext/Data/Packages/Package Control/Package Control.sublime-settings",
 		"/C/leo/love/platform/platform.old3.love",
-		"/C/leo/love/sublimetext/Data/Packages/User/Preferences.sublime-settings",
 		"/C/leo/love/sublimetext/Data/Packages/Default/Preferences.sublime-settings",
 		"/C/leo/love/sublimetext/Data/Packages/Default/Default (Windows).sublime-keymap",
 		"/C/leo/love/sublimetext/Data/Packages/Function Name Display/Function Name Display.sublime-settings",
@@ -333,6 +372,93 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"debugprint",
+			"self.c[1].ticknum",
+			"--debugprint",
+			"self.runner",
+			"self.r",
+			"self.condition",
+			"condition",
+			"predicate",
+			"self.action",
+			"debugprint",
+			"--debugprint",
+			".parent",
+			".parentp",
+			".parent",
+			".parnet",
+			".timeout",
+			":init",
+			"self.childs",
+			"self.childs[i]",
+			".status",
+			"self.ticknum",
+			".ticknum",
+			".status",
+			"debugprint",
+			":init",
+			"--debugprint",
+			"btlua",
+			"BTLua.",
+			"mpchild",
+			"Sleep",
+			"wait",
+			"GetUptimeMS",
+			"filter",
+			"self.ticknum = pbehavtree.ticknum",
+			"_stat",
+			"debugprint",
+			"print",
+			"yield",
+			"cocoyield",
+			"coyeld",
+			"yield",
+			"btactionresume",
+			"func_b",
+			"--debugprint",
+			">=",
+			" <=3000",
+			"_desc",
+			"Running",
+			"running",
+			"setParentChilds",
+			"_a",
+			"a",
+			"lastaction",
+			"lastacition",
+			"lastacion",
+			"node.status = _s",
+			"node.ticknum",
+			"return",
+			"debugprint",
+			"return",
+			"debugprint",
+			"return",
+			".status",
+			"setParentChilds",
+			"debugprint",
+			"--debugprint",
+			"print",
+			"--print",
+			"inheritsFrom",
+			"btaction",
+			"runner",
+			"runeer",
+			"codead",
+			"action",
+			"table.inse",
+			"...",
+			"loadstrin",
+			" print",
+			"print",
+			"func_e",
+			"sec",
+			"func_e",
+			"4000",
+			"5000",
+			"d",
+			"round",
+			"escape",
 			"lua",
 			"bht",
 			"bt",
@@ -373,94 +499,7 @@
 			"palettenodeheight",
 			"palette",
 			"valid",
-			"backspa",
-			"applyChangesNode",
-			"ontextchanged",
-			"levelind",
-			"updatenodes",
-			"switch",
-			"indexchild",
-			"refre",
-			"updateNodes",
-			"dolayout",
-			"changenodepa",
-			"changenode",
-			"change",
-			"moveNodeParent",
-			"clicke",
-			"addnode",
-			"position",
-			"state:enter",
-			"txt_nodename",
-			"changenode",
-			"collectgarbage",
-			"layoutgui",
-			"newdoc",
-			"newdocbutton",
-			"load",
-			"help",
-			"changecame",
-			"drawgr",
-			"changecame",
-			"leo",
-			"--leo",
-			"settext",
-			"gettext",
-			"linenumbers",
-			".notes",
-			"filename",
-			"txt_fi",
-			".title",
-			"\"delete\"",
-			"OnTextChanged",
-			"applyChangesNode",
-			"txt_nodefunc",
-			"txt_func",
-			"func",
-			"changenode",
-			"choice",
-			"resolution",
-			"savefile",
-			"saveas",
-			"height",
-			"_x",
-			"toolbar",
-			"zoom",
-			"divisorce",
-			"divisor",
-			"\" \"",
-			"70",
-			"bin",
-			"\" \"",
-			"(15",
-			"applyChangesNode",
-			"getCameraWorld",
-			"getcameraworld",
-			"getcameraword",
-			"camera",
-			"type",
-			"coords",
-			"func",
-			"palette",
-			"drawpal",
-			"statusbarheight",
-			"nodesNotValid",
-			"nodes",
-			"toolba",
-			"debug",
-			"drawpale",
-			"palette",
-			"drawp",
-			"updatenode",
-			"EDITOR.filehistory",
-			"EDITOR.pointer",
-			"debug",
-			"updateNode",
-			"select",
-			"nodes",
-			"fileopen",
-			" print",
-			"chk_au"
+			"backspa"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -468,6 +507,29 @@
 		"regex": false,
 		"replace_history":
 		[
+			"--debugprint",
+			"debugprint",
+			"self.r",
+			"self.w",
+			"self.a",
+			"--debugprint",
+			"debugprint",
+			"self.c",
+			".s",
+			"self.n",
+			".n",
+			".s",
+			"--debugprint",
+			"debugprint",
+			"BTLua2.",
+			"--debugprint",
+			"debugprint",
+			" >=3000",
+			"Running",
+			"self.status = _s",
+			"self.ticknum",
+			"--debugprint",
+			"debugprint",
 			"lgl",
 			"lgp",
 			"lgr",
@@ -495,7 +557,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -503,15 +565,15 @@
 					"file": "main.lua",
 					"settings":
 					{
-						"buffer_size": 2334,
+						"buffer_size": 6635,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								701,
-								701
+								3786,
+								3786
 							]
 						],
 						"settings":
@@ -556,7 +618,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 41,
+							"function_name_status_row": 152,
 							"gjslint_ignore":
 							[
 								110
@@ -598,10 +660,11 @@
 							"sublimelinter_mark_style": "outline",
 							"sublimelinter_notes": false,
 							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_popup_errors_on_save": true,
 							"sublimelinter_syntax_map":
 							{
 								"C++": "c",
+								"Love": "lua",
 								"Lua (Love)": "lua",
 								"Python Django": "python",
 								"Ruby on Rails": "ruby",
@@ -613,25 +676,25 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 695.0,
+						"translation.y": 2527.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "/C/leo/love/sublimetext/Data/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+					"file": "BTLua.lua",
 					"settings":
 					{
-						"buffer_size": 7970,
+						"buffer_size": 13161,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1798,
-								1798
+								261,
+								261
 							]
 						],
 						"settings":
@@ -676,7 +739,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 50,
+							"function_name_status_row": 15,
 							"gjslint_ignore":
 							[
 								110
@@ -718,18 +781,140 @@
 							"sublimelinter_mark_style": "outline",
 							"sublimelinter_notes": false,
 							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_popup_errors_on_save": true,
 							"sublimelinter_syntax_map":
 							{
 								"C++": "c",
+								"Love": "lua",
 								"Lua (Love)": "lua",
 								"Python Django": "python",
 								"Ruby on Rails": "ruby",
 								"Scala": "lua"
 							},
 							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/JavaScript/JSON.tmLanguage",
-							"tab_size": 4,
+							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.lua",
+					"settings":
+					{
+						"buffer_size": 2640,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								50,
+								50
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"function_name_status_row": 4,
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+								"lua": "C:\\leo\\love\\lua_5.1_64\\luac5.1.exe"
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": true,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Love": "lua",
+								"Lua (Love)": "lua",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby",
+								"Scala": "lua"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage",
+							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
@@ -739,19 +924,19 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "/C/leo/love/sublimetext/Data/Packages/User/SublimeLinter.sublime-settings",
+					"buffer": 3,
+					"file": "BTLua2.lua",
 					"settings":
 					{
-						"buffer_size": 315,
+						"buffer_size": 8549,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								186,
-								186
+								160,
+								160
 							]
 						],
 						"settings":
@@ -796,7 +981,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 7,
+							"function_name_status_row": 6,
 							"gjslint_ignore":
 							[
 								110
@@ -838,18 +1023,19 @@
 							"sublimelinter_mark_style": "outline",
 							"sublimelinter_notes": false,
 							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_popup_errors_on_save": true,
 							"sublimelinter_syntax_map":
 							{
 								"C++": "c",
+								"Love": "lua",
 								"Lua (Love)": "lua",
 								"Python Django": "python",
 								"Ruby on Rails": "ruby",
 								"Scala": "lua"
 							},
 							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/JavaScript/JSON.tmLanguage",
-							"tab_size": 4,
+							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage",
+							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
