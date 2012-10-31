@@ -177,6 +177,7 @@ end
 function BTLua.Filter:run(pbehavtree)
   --debugprint("BTLua.Filter:run "..type(self.w))
   local _s, _child
+  local _object, _btree = pbehavtree.object, pbehavtree
   if self.s ~= "Running" or self.n ~= pbehavtree.ticknum-1 then
     if type(self.w) == "function" then
       _s = self.w(pbehavtree.object,pbehavtree)
@@ -218,6 +219,7 @@ end
 function BTLua.Decorator:run(pbehavtree)
   --debugprint("BTLua.Decorator:run "..type(self.w))
   local _s
+  local _object, _btree = pbehavtree.object, pbehavtree
   if self.s ~= "Running" or self.n ~= pbehavtree.ticknum-1 then
     if type(self.w) == "function" then
       _s = self.w(pbehavtree.object,pbehavtree)
@@ -259,6 +261,7 @@ end
 function BTLua.DecoratorContinue:run(pbehavtree)
   --debugprint("BTLua.DecoratorContinue:run "..type(self.w))
   local _s
+  local _object, _btree = pbehavtree.object, pbehavtree
   if self.s ~= "Running" or self.n ~= pbehavtree.ticknum-1 then
     if type(self.w) == "function" then
       _s = self.w(pbehavtree.object,pbehavtree)
@@ -352,6 +355,7 @@ end
 function BTLua.Condition:run(pbehavtree)
   --debugprint("BTLua.Condition:run "..type(self.w))
   local _s
+  local _object, _btree = pbehavtree.object, pbehavtree
   if type(self.w) == "function" then
     _s = self.w(pbehavtree.object,pbehavtree)
   end
@@ -375,6 +379,7 @@ end
 function BTLua.Action:run(pbehavtree)
   --debugprint("BTLua.Action:run")
   local _s
+  local _object, _btree = pbehavtree.object, pbehavtree
   if type(self.a) == "function" then
     _s = self.a(pbehavtree.object,pbehavtree)
   end
@@ -398,6 +403,7 @@ end
 function BTLua.ActionResume:run(pbehavtree)
   --debugprint("BTLua.ActionResume:run")
   local _status, _s
+  local _object, _btree = pbehavtree.object, pbehavtree
   if type(self.a) == "function" then
     if self.s ~= "Running" or self.n ~= pbehavtree.ticknum-1 then
       self.r = cocreate(self.a)
@@ -560,18 +566,20 @@ function BTLua.BTree:parseFunc(pfunc)
   end
   local _funcs = split(pfunc,"|")
   local _return ={}
-  local object = self.object
+  local _object, _btree = self.object, self
   for i,v in ipairs(_funcs) do
     if v ~= "" then
-      if (string.sub(v,1,1)=="'" or string.sub(v,-1)=='"') and string.sub(v,1,1)==string.sub(v,-1) then
+      local _function
+      local _strfunc = string.gsub(v, "#", "_object.")
+      local _strfunc = string.gsub(v, "@", "_G.")
+      local _strfunc = string.gsub(v, "!", "_btree.")
+      if (string.sub(_strfunc,1,1)=="'" or string.sub(_strfunc,-1)=='"') and string.sub(_strfunc,1,1)==string.sub(_strfunc,-1) then
         -- string
-        table.insert(_return,string.sub(v,2,-1))
-      elseif tonumber(v)~=nil then
+        table.insert(_return,string.sub(_strfunc,2,-1))
+      elseif tonumber(_strfunc)~=nil then
         -- number
-        table.insert(_return,tonumber(v))
+        table.insert(_return,tonumber(_strfunc))
       else
-        local _function
-        local _strfunc = string.gsub(v, "#", "object.")
         _function = loadstring("return ".._strfunc)
       end
     end
