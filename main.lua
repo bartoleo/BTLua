@@ -150,25 +150,25 @@ end
 
 function test_2_init()
   test_2_desc="prova behavtree"
-  bht2=BTLua.behavtree:new("prova",nil,
-                             btselector:new(
-                               btsequence:new(
-                                 btcondition:new(func_a),
-                                 btaction:new(func_b)),
-                               btselector:new(
-                                 btselector:new(
-                                   btsequence:new(
-                                     btcondition:new(func_c),
-                                     btaction:new(func_d)
+  bht2=BTLua.BTree:new("prova",nil,
+                             BTLua.Selector:new(
+                               BTLua.Sequence:new(
+                                 BTLua.Condition:new(func_a),
+                                 BTLua.Action:new(func_b)),
+                               BTLua.Selector:new(
+                                 BTLua.Selector:new(
+                                   BTLua.Sequence:new(
+                                     BTLua.Condition:new(func_c),
+                                     BTLua.Action:new(func_d)
                                    ),
-                                   btsequence:new(
-                                     btcondition:new(func_e),
-                                     btaction:new(func_f)
+                                   BTLua.Sequence:new(
+                                     BTLua.Condition:new(func_e),
+                                     BTLua.Action:new(func_f)
                                    )
                                  )
-                                 ,btsequence:new(
-                                   btcondition:new(func_g),
-                                   btaction:new(func_h)
+                                 ,BTLua.Sequence:new(
+                                   BTLua.Condition:new(func_g),
+                                   BTLua.Action:new(func_h)
                                  )
                               )
                            ),nil,nil)
