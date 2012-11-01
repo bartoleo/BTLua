@@ -1,4 +1,4 @@
-times=1
+times=20
 cycles=50000
 
 function resetEnv()
@@ -42,7 +42,6 @@ end
 function love.load()
  require "BTLua"
  require "BTLua2"
- inspect = require 'inspect'
  resetEnv()
  print(_VERSION)
 end
@@ -179,6 +178,7 @@ function test_2()
   for i=1,cycles do
       bht2:run()
   end
+  print ("ticknum:"..bht2.ticknum)
 end
 
 function func_a()
@@ -198,10 +198,10 @@ function func_b()
     _G.env.b_false = _G.env.b_false + 1
     return false
   else
-    if _G.env.b % 2 == -1 then
+    if _G.env.b % 2 == 1 then
       _G.env.b_running = _G.env.b_running + 1
-      --return "Running"
-      coroutine.yield("Running")
+      return "Running"
+      --coroutine.yield("Running")
     end
     _G.env.b_true = _G.env.b_true + 1
     return true
