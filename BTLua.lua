@@ -370,13 +370,16 @@ function BTLua.Sleep(timeout)
 end
 --------------- CONDITION ----------------
 BTLua.Condition = inheritsFrom(BTLua.node)
-function BTLua.Condition:init(pcondition)
+function BTLua.Condition:init(pcondition,...)
   self.s = ""
   self.n = -1
   if type(self.w) == "string" then
     self.w = loadstring(pcondition)
   else
     self.w = pcondition
+  end
+  if select("#",...)>0 then
+    self.a2 = {...}
   end
 end
 function BTLua.Condition:run(pbehavtree)
@@ -396,13 +399,16 @@ function BTLua.Condition:run(pbehavtree)
 end
 --------------- ACTION ----------------
 BTLua.Action = inheritsFrom(BTLua.node)
-function BTLua.Action:init(paction)
+function BTLua.Action:init(paction,...)
   self.s = ""
   self.n = -1
   if type(self.a) == "string" then
     self.a = loadstring(paction)
   else
     self.a = paction
+  end
+  if select("#",...)>0 then
+    self.a2 = {...}
   end
   self.r = nil
 end
@@ -413,7 +419,11 @@ function BTLua.Action:run(pbehavtree)
   local _ticknum = pbehavtree.ticknum
   local _object, _btree = pbehavtree.object, pbehavtree
   if type(self.a) == "function" then
-    _s = self.a(pbehavtree.object,pbehavtree)
+    if self.a2 then
+      _s = self.a(pbehavtree.object,pbehavtree,unpack(self.a2))
+    else
+      _s = self.a(pbehavtree.object,pbehavtree)
+    end
   end
   self.n,self.s = _ticknum, _s
   if _s == "Running" then
@@ -423,13 +433,16 @@ function BTLua.Action:run(pbehavtree)
 end
 --------------- ActionResume ----------------
 BTLua.ActionResume = inheritsFrom(BTLua.node)
-function BTLua.ActionResume:init(paction)
+function BTLua.ActionResume:init(paction,...)
   self.s = ""
   self.n = -1
   if type(self.a) == "string" then
     self.a = loadstring(paction)
   else
     self.a = paction
+  end
+  if select("#",...)>0 then
+    self.a2 = {...}
   end
   self.r = nil
 end
@@ -441,7 +454,11 @@ function BTLua.ActionResume:run(pbehavtree)
   local _object, _btree = pbehavtree.object, pbehavtree
   if type(self.a) == "function" then
     if self.s ~= "Running" or self.n ~= _ticknum-1 then
-      self.r = cocreate(self.a)
+      if self.a2 then
+        self.r = cocreate(self.a,unpack(self.a2))
+      else
+        self.r = cocreate(self.a)
+      end
     end
     if codead(self.r) then
       self.r = cocreate(self.a)
@@ -459,6 +476,10 @@ end
 --------------- RETURNFALSE ---------------
 function BTLua.ReturnFalse()
   return false
+end
+--------------- RETURNRUNNING ---------------
+function BTLua.ReturnRunning()
+  return "Runninf"
 end
 --------------- BEHAVTREE ----------------
 function BTLua.BTree:init(pname,pobject,ptree,pfunctionTreeStart,pfunctionTreeEnd)
@@ -548,28 +569,37 @@ function BTLua.BTree:addNode(pparent,pnode)
   self.initialized = false
 end
 
-function BTLua.BTree:parseTable(pparent,pexternaltable)
+function BTLua.BTree:parseTable(pparent,pexternaltable,pattributes)
   if pparent == nil then
     self.name = pexternaltable.name or pexternaltable.title or self.name
     self.tree=nil
     self.laststatus=nil
     self.Runningnode=nil
     self.ticknum=0
+    self.tree={}
   end
-  if pexternaltable.nodes and pexternaltable.nodes.children then
-    for i = 1,#pexternaltable.nodes.children do
-      self:parseNodeAndAdd(nil,pexternaltable.nodes.children[i])
+  if pexternaltable.nodes then
+    if pexternaltable.nodes.children then
+      for i = 1,#pexternaltable.nodes.children do
+        self:parseNodeAndAdd(nil,pexternaltable.nodes.children[i],pattributes)
+      end
+    else
+      for i = 1,#pexternaltable.nodes do
+        self:parseNodeAndAdd(nil,pexternaltable.nodes[i],pattributes)
+      end
     end
   end
   self.initialized=false
 end
 
-function BTLua.BTree:parseNodeAndAdd(pparent,pnode)
-  local _node = self:parseNode(pnode)
-  self:addNode(pparent,_node)
-  if pnode.childen then
+function BTLua.BTree:parseNodeAndAdd(pparent,pnode,pattributes)
+  local _node = self:parseNode(pnode,pattributes)
+  if _node then
+    self:addNode(pparent,_node)
+  end
+  if pnode.children then
     for i = 1,#pnode.children do
-      self:parseNodeAndAdd(_node,pnode.children[i])
+      self:parseNodeAndAdd(_node,pnode.children[i],pattributes)
     end
   end
 end
@@ -601,7 +631,7 @@ function BTLua.BTree:parseFunc(pfunc)
       return result
   end
   if pfunc==nil or pfunc=="" then
-    return nil
+    return {}
   end
   local _funcs = split(pfunc,"|")
   local _return ={}
@@ -614,24 +644,28 @@ function BTLua.BTree:parseFunc(pfunc)
       local _strfunc = string.gsub(v, "!", "_btree.")
       if (string.sub(_strfunc,1,1)=="'" or string.sub(_strfunc,-1)=='"') and string.sub(_strfunc,1,1)==string.sub(_strfunc,-1) then
         -- string
-        table.insert(_return,string.sub(_strfunc,2,-1))
+        table.insert(_return,string.sub(_strfunc,2,-2))
       elseif tonumber(_strfunc)~=nil then
         -- number
         table.insert(_return,tonumber(_strfunc))
       else
         _function = loadstring("return ".._strfunc)
+        table.insert(_return,_function)
       end
     end
   end
   return _return
 end
 
-function BTLua.BTree:parseNode(pnode)
+function BTLua.BTree:parseNode(pnode,pattributes)
   local _node = nil
   local _type = string.upper(pnode.type)
   local _func = nil
   if pnode.func then
     _func =  BTLua.BTree:parseFunc(pnode.func)
+  end
+  if _type =="START" then
+    return nil
   end
   if _type =="ACTION" then
     _node =  BTLua.Action:new(unpack(_func))
@@ -671,6 +705,14 @@ function BTLua.BTree:parseNode(pnode)
   end
   if _type =="SLEEP" then
     _node =  BTLua.Sleep:new(unpack(_func))
+  end
+  if _node==nil then
+    error("BTLua : node type '"..pnode.type.."' unrecognized!")
+  end
+  if pattributes then
+    for i,v in ipairs(pattributes) do
+      _node[v]=pnode[v]
+    end
   end
   return _node
 end
