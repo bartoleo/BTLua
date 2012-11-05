@@ -298,9 +298,41 @@ function func_h()
   end
 end
 
+myobject={}
+myobject.data = ""
+function myobject:action(pbehavtree,...)
+  print("action ".."#"..self.data.."#")
+  if select("#",...)>0 then
+    for k,v in pairs{...} do
+      print("args "..k.." : "..v)
+    end
+  end
+  return true
+end
+function myobject:condition(pbehavtree,...)
+  print("condition ".."#"..self.data.."#")
+  if select("#",...)>0 then
+    for k,v in pairs{...} do
+      print("args "..k.." : "..v)
+    end
+  end
+  return true
+end
+function myobject:new(pdata)
+ local _o = {}
+ setmetatable(_o, self)
+ self.__index = self
+ _o.data = pdata
+ return _o
+end
+
+myobject_a=myobject:new("a")
+
+myobject_b=myobject:new("b")
+
 function test2_a_init()
   test2_a_desc="prova read from file test.lua"
-  bht2=BTLua.BTree:new("prova",nil,
+  bht2=BTLua.BTree:new("prova",myobject_b,
                              nil,nil,nil)
   local _table = loadstring(love.filesystem.read("test.lua"))()
   bht2:parseTable(nil,_table,nil)
@@ -310,4 +342,14 @@ function test2_a()
   local i
   bht2:run()
   print ("ticknum:"..bht2.ticknum)
+end
+
+function globalaction(pobject,pbehavtree,...)
+  print("globalaction")
+  if select("#",...)>0 then
+    for k,v in pairs{...} do
+      print("args "..k.." : "..v)
+    end
+  end
+  return true
 end

@@ -13,11 +13,11 @@ return {
               type="Sequence",
               children={
                 {
-                  func="function() print(!name) end",
+                  func="#condition|a|2",
                   type="Condition"
                 },
                 {
-                  func="an action",
+                  func="!globalaction",
                   type="Action"
                 } 
               }
