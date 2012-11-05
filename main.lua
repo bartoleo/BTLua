@@ -94,6 +94,29 @@ function love.keypressed(key)
      tot = tot + took
    end
    print ("Min:"..round(min,5).." Max:"..round(max,5).." Tot:"..round(tot,5).." Avg:"..round(tot/times,5).." over "..times.." times")
+ elseif _G["test2_"..key] then
+   print (" =========================================== kb:"..round(collectgarbage ("count"),3))
+   min = -1
+   max = -1
+   tot = 0
+     resetEnv()
+     collectgarbage ("collect")
+
+     collectgarbage ("stop")
+     func = _G["test2_"..key]
+     if (_G["test2_"..key.."_init"]) then
+       _G["test2_"..key.."_init"]()
+     end
+     test = _G["test2_"..key.."_desc"]
+     local kbini = collectgarbage ("count")
+     local now = os.clock()
+     ---
+     func()
+     ---
+     local took = os.clock() - now
+     local kbfin = collectgarbage ("count")-kbini
+     print(test ..  " took: "..round(took,5).." sec and "..round(kbfin,1).." Kb")
+     printEnv()
  else
   print ("No such test:".."test_"..key.." !")
  end
@@ -273,4 +296,18 @@ function func_h()
     _G.env.h_true = _G.env.h_true + 1
     return true
   end
+end
+
+function test2_a_init()
+  test2_a_desc="prova read from file test.lua"
+  bht2=BTLua.BTree:new("prova",nil,
+                             nil,nil,nil)
+  local _table = loadstring(love.filesystem.read("test.lua"))()
+  bht2:parseTable(nil,_table,nil)
+end
+
+function test2_a()
+  local i
+  bht2:run()
+  print ("ticknum:"..bht2.ticknum)
 end
