@@ -26,11 +26,11 @@ return {
               type="Sequence",
               children={
                 {
-                  func="a condition",
+                  func="",
                   type="Condition"
                 },
                 {
-                  func="a action",
+                  func="",
                   type="Action"
                 } 
               }

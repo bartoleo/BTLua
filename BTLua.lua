@@ -339,7 +339,7 @@ function BTLua.DecoratorContinue:run(pbehavtree)
 end
 --------------- WAIT ----------------
 BTLua.Wait = inheritsFrom(BTLua.node)
-function BTLua.Wait:init(pcondition,ptimeout,pchild,...)
+function BTLua.Wait:init(ptimeout,pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
@@ -352,13 +352,14 @@ function BTLua.Wait:init(pcondition,ptimeout,pchild,...)
   if select("#",...)>0 then
     self.a2 = {...}
   end
+  error("BTLua.Wait ... in development... see you soon")
 end
 function BTLua.Wait:run(pbehavtree)
---TODO da fare
+  -- TODO: da fare BTLua.Wait
 end
 --------------- WAITContinue ----------------
 BTLua.WaitContinue = inheritsFrom(BTLua.node)
-function BTLua.WaitContinue:init(pcondition,ptimeout,pchild,...)
+function BTLua.WaitContinue:init(ptimeout,pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
@@ -371,13 +372,14 @@ function BTLua.WaitContinue:init(pcondition,ptimeout,pchild,...)
   if select("#",...)>0 then
     self.a2 = {...}
   end
+  error("BTLua.WaitContinue ... in development... see you soon")
 end
 function BTLua.WaitContinue:run(pbehavtree)
---TODO da fare
+  -- TODO: da fare BTLua.WaitContinue
 end
 --------------- REPEATUNTIL ----------------
 BTLua.RepeatUntil = inheritsFrom(BTLua.node)
-function BTLua.RepeatUntil:init(pcondition,ptimeout,pchild,...)
+function BTLua.RepeatUntil:init(ptimeout,pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
@@ -390,13 +392,14 @@ function BTLua.RepeatUntil:init(pcondition,ptimeout,pchild,...)
   if select("#",...)>0 then
     self.a2 = {...}
   end
+  error("BTLua.RepeatUntil ... in development... see you soon")
 end
 function BTLua.RepeatUntil:run(pbehavtree)
---TODO da fare
+  -- TODO: da fare BTLua.RepeatUntil
 end
 --------------- SLEEP --------------------
-function BTLua.Sleep(timeout)
-  return BTLua.WaitContinue:new(function() return false end, nil, timeout)
+function BTLua.Sleep(ptimeout)
+  return BTLua.WaitContinue:new(ptimeout,BTLua.ReturnFalse, nil)
 end
 --------------- CONDITION ----------------
 BTLua.Condition = inheritsFrom(BTLua.node)
@@ -460,8 +463,6 @@ function BTLua.Action:run(pbehavtree)
     end
   end
   self.n,self.s = _ticknum, _s
-  if _s == "Running" then
-  end
   --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
@@ -687,13 +688,13 @@ function BTLua.BTree:parseFunc(pfunc)
           _function = _btree[string.sub(_strfunc,2,-1)]
         elseif string.sub(_strfunc,1,1)=="!" then
           _function = _G[string.sub(_strfunc,2,-1)]
-        else
-          if i==1 then 
-            _function = loadstring(_strfunc)
+        elseif _strfunc~=nil and _strfunc~="" then
+          if i==1 then
+            _function = loadstring("return ".._strfunc)()
           else
             _function = _strfunc
           end
-        end 
+        end
         table.insert(_return,_function)
       end
     end
@@ -739,13 +740,13 @@ function BTLua.BTree:parseNode(pnode,pattributes)
     _node =  BTLua.DecoratorContinue:new(unpack(_func))
   end
   if _type =="WAIT" then
-    _node =  BTLua.Wait:new(unpack(_func))
+    _node =  BTLua.Wait:new(_func[1],_func[2],nil,unpack(_func,3,table.maxn(_func)))
   end
   if _type =="WAITCONTINUE" then
-    _node =  BTLua.WaitContinue:new(unpack(_func))
+    _node =  BTLua.WaitContinue:new(_func[1],_func[2],nil,unpack(_func,3,table.maxn(_func)))
   end
   if _type =="REPEATUNTIL" then
-    _node =  BTLua.RepeatUntil:new(unpack(_func))
+    _node =  BTLua.RepeatUntil:new(_func[1],_func[2],nil,unpack(_func,3,table.maxn(_func)))
   end
   if _type =="SLEEP" then
     _node =  BTLua.Sleep:new(unpack(_func))
