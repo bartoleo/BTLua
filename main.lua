@@ -401,3 +401,26 @@ function test2_z()
   end
   copyglobals("ini")
 end
+
+
+function test2_c_init()
+  test2_c_desc="prova string functions"
+  bht2=BTLua.BTree:new("prova",myobject_b,
+                      BTLua.Selector:new(
+                        BTLua.Sequence:new(
+                          BTLua.Condition:new("#condition","a",2),
+                          BTLua.Action:new("!globalaction")
+                        ),
+                        BTLua.Sequence:new(
+                          BTLua.Condition:new("#condition","b",3),
+                          BTLua.Action:new("!globalaction")
+                        )
+                      )
+                      ,nil,nil)
+end
+
+function test2_c()
+  local i
+  bht2:run()
+  print ("ticknum:"..bht2.ticknum)
+end

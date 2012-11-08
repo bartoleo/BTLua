@@ -13,7 +13,7 @@ return {
               type="Sequence",
               children={
                 {
-                  func="#condition|a|2",
+                  func="#condition|'a'|2",
                   type="Condition"
                 },
                 {
