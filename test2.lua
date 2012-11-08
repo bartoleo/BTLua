@@ -13,13 +13,13 @@ return {
               type="Selector",
               children={
                 {
-                  type="Wait",
-                  func="2|function() print('ret true') return true end",
+                  type="RepeatUntil",
+                  func="1|function() print('ret false') return false end",
                   children=
                   {
                    {
                     type="Action",
-                    func="function() print('azione') return true end"
+                    func="function() print('azione') return 'Running' end"
                    }
                   } 
                 },

@@ -1,3 +1,13 @@
+globals={}
+function copyglobals(ptable)
+  globals[ptable]={}
+  local _table=globals[ptable]
+  for k,v in pairs(_G) do
+    _table[k]=type(v)
+  end
+end
+copyglobals("ini")
+
 times=20
 cycles=50000
 
@@ -376,4 +386,18 @@ local clock = os.clock
 function sleep(n)  -- seconds
   local t0 = clock()
   while clock() - t0 <= n do end
+end
+
+function test2_z_init()
+  test2_z_desc="verify globals"
+end
+
+function test2_z()
+  copyglobals("now")
+  for k,v in pairs(globals.now) do
+    if globals.ini[k]==nil then
+      print(k.." "..v)
+    end
+  end
+  copyglobals("ini")
 end
