@@ -76,7 +76,7 @@ function BTLua.Sequence:run(pbehavtree)
   for i=1,#self.c do
     _child = self.c[i]
     --debugprint("BTLua.Sequence:run "..i)
-    --if I was Running then I'll launch only childs Running or  not yet launched
+    -- if I was Running then I'll launch only childs Running or  not yet launched
     if self.s == "Running" and self.n == _ticknum-1 and _child.s~="Running" and _child.n == _ticknum-1 then
       _s = _child.s
     else
@@ -117,7 +117,7 @@ function BTLua.Selector:run(pbehavtree)
   for i=1,#self.c do
     --debugprint("BTLua.Selector "..i)
     _child = self.c[i]
-    --if I was Running then I'll launch only childs Running or  not yet launched
+    -- if I was Running then I'll launch only childs Running or  not yet launched
     if self.s == "Running" and self.n == _ticknum-1 and _child.s~="Running" and _child.n== _ticknum-1 then
       _s = _child.s
     else
@@ -183,8 +183,8 @@ function BTLua.Filter:init(pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
-  if type(self.a) == "string" then
-    self.a = loadstring(pcondition)
+  if type(pcondition) == "string" then
+    self.a = loadstring("return "..pcondition)()
   else
     self.a = pcondition
   end
@@ -234,8 +234,8 @@ function BTLua.Decorator:init(pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
-  if type(self.a) == "string" then
-    self.a = loadstring(pcondition)
+  if type(pcondition) == "string" then
+    self.a = loadstring("return "..pcondition)()
   else
     self.a = pcondition
   end
@@ -285,8 +285,8 @@ function BTLua.DecoratorContinue:init(pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
-  if type(self.a) == "string" then
-    self.a = loadstring(pcondition)
+  if type(pcondition) == "string" then
+    self.a = loadstring("return "..pcondition)()
   else
     self.a = pcondition
   end
@@ -337,11 +337,16 @@ function BTLua.Wait:init(ptimeout,pcondition,pchild,...)
   self.n = -1
   self.c = {pchild}
   self.t = ptimeout
-  if type(self.a) == "string" then
-    self.a = loadstring(pcondition)
+  if self.t == nil then
+    self.t = 1
+  end
+  if type(pcondition) == "string" then
+    self.a = loadstring("return "..pcondition)()
   else
     self.a = pcondition
   end
+  print(pcondition)
+  print(self.a)
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -407,8 +412,11 @@ function BTLua.WaitContinue:init(ptimeout,pcondition,pchild,...)
   self.n = -1
   self.c = {pchild}
   self.t = ptimeout
-  if type(self.a) == "string" then
-    self.a = loadstring(pcondition)
+  if self.t == nil then
+    self.t = 1
+  end
+  if type(pcondition) == "string" then
+    self.a = loadstring("return "..pcondition)()
   else
     self.a = pcondition
   end
@@ -472,8 +480,11 @@ function BTLua.RepeatUntil:init(ptimeout,pcondition,pchild,...)
   self.n = -1
   self.c = {pchild}
   self.t = ptimeout
-  if type(self.a) == "string" then
-    self.a = loadstring(pcondition)
+  if self.t == nil then
+    self.t = 1
+  end
+  if type(pcondition) == "string" then
+    self.a = loadstring("return "..pcondition)()
   else
     self.a = pcondition
   end
@@ -544,8 +555,8 @@ BTLua.Condition = inheritsFrom(BTLua.node)
 function BTLua.Condition:init(pcondition,...)
   self.s = ""
   self.n = -1
-  if type(self.a) == "string" then
-    self.a = loadstring(pcondition)
+  if type(pcondition) == "string" then
+    self.a = loadstring("return "..pcondition)()
   else
     self.a = pcondition
   end
@@ -577,8 +588,8 @@ BTLua.Action = inheritsFrom(BTLua.node)
 function BTLua.Action:init(paction,...)
   self.s = ""
   self.n = -1
-  if type(self.a) == "string" then
-    self.a = loadstring(paction)
+  if type(paction) == "string" then
+    self.a = loadstring("return "..paction)()
   else
     self.a = paction
   end
@@ -609,8 +620,8 @@ BTLua.ActionResume = inheritsFrom(BTLua.node)
 function BTLua.ActionResume:init(paction,...)
   self.s = ""
   self.n = -1
-  if type(self.a) == "string" then
-    self.a = loadstring(paction)
+  if type(paction) == "string" then
+    self.a = loadstring("return "..paction)()
   else
     self.a = paction
   end
