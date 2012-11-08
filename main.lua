@@ -353,3 +353,27 @@ function globalaction(pobject,pbehavtree,...)
   end
   return true
 end
+
+
+function test2_b_init()
+  test2_b_desc="prova read from file test2.lua"
+  bht2=BTLua.BTree:new("prova",myobject_b,
+                             nil,nil,nil)
+  local _table = loadstring(love.filesystem.read("test2.lua"))()
+  bht2:parseTable(nil,_table,nil)
+end
+
+function test2_b()
+  local i
+  for i=1,5 do
+    sleep(0.5)
+    bht2:run()
+  end
+  print ("ticknum:"..bht2.ticknum)
+end
+
+local clock = os.clock
+function sleep(n)  -- seconds
+  local t0 = clock()
+  while clock() - t0 <= n do end
+end
