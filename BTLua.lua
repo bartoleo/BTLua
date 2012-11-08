@@ -898,7 +898,7 @@ function BTLua.BTree:parseNode(pnode,pattributes)
     _node =  BTLua.RepeatUntil:new(_func[1],_func[2],nil,unpack(_func,3,table.maxn(_func)))
   end
   if _type =="SLEEP" then
-    _node =  BTLua.Sleep:new(unpack(_func))
+    _node =  BTLua.Sleep(unpack(_func))
   end
   if _node==nil then
     error("BTLua : node type '"..pnode.type.."' unrecognized!")
